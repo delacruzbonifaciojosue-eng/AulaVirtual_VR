@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0">
+
+  <title>EduVR Classroom</title>
+
+  <meta name="description"
+    content="Plataforma educativa de realidad virtual">
+
+  <!-- A-Frame -->
+  <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+
+    #loading {
+      position: fixed;
+      z-index: 10;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #172538;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 22px;
+      pointer-events: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="loading">
+    Cargando EduVR Classroom...
+  </div>
+
+  <a-scene
+    renderer="antialias: false; colorManagement: true"
+    vr-mode-ui="enabled: true"
+    loading-screen="enabled: false">
+
+    <!-- Cámara del alumno -->
+    <a-entity
+      position="0 1.6 6"
+      camera
+      look-controls
+      wasd-controls>
+
+      <!-- Cursor interactivo -->
+      <a-entity
+        id="cursor"
+        cursor="rayOrigin: mouse"
+        raycaster="objects: .clickable; far: 25">
+      </a-entity>
+
+    </a-entity>
+
+    <!-- Aquí se cargan las diferentes escenas -->
+    <!-- Escenarios -->
+<a-entity id="world"></a-entity>
+
+<!-- Cámara -->
+<!-- CAMARA PRINCIPAL -->
+<a-camera position="0 1.6 1.5" look-controls wasd-controls>
+
+  <!-- CURSOR PARA MIRADA VR -->
+  <a-entity
+    cursor="fuse: true; fuseTimeout: 1500"
+    position="0 0 -1"
+    geometry="primitive: ring; radiusInner: 0.015; radiusOuter: 0.025"
+    material="color: #00ffcc; shader: flat"
+    raycaster="objects: .clickable; far: 30">
+  </a-entity>
+
+</a-camera>
+
+<!-- CURSOR PARA RATON -->
+<a-entity
+  cursor="rayOrigin: mouse; fuse: false"
+  raycaster="objects: .clickable; far: 30">
+</a-entity>
+  </a-scene>
+
+  <script type="module" src="./src/main.js"></script>
+
+  <script>
+    document.querySelector("a-scene").addEventListener(
+      "loaded",
+      () => {
+        document.querySelector("#loading").style.display = "none";
+      }
+    );
+  </script>
+
+</body>
+</html>
