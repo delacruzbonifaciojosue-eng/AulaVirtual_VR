@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -5,7 +6,7 @@
   <meta charset="UTF-8">
 
   <meta name="viewport"
-    content="width=device-width, initial-scale=1.0">
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
   <title>EduVR Classroom</title>
 
@@ -37,6 +38,42 @@
       font-size: 22px;
       pointer-events: none;
     }
+
+    /* JOYSTICK MOVIL */
+
+    #joystick-zone {
+      display: none;
+      position: fixed;
+      z-index: 20;
+      left: 25px;
+      bottom: 25px;
+      width: 125px;
+      height: 125px;
+      border-radius: 50%;
+      background: rgba(20, 35, 55, 0.45);
+      border: 2px solid rgba(255,255,255,0.65);
+      touch-action: none;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    #joystick-knob {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: rgba(220, 235, 255, 0.85);
+      border: 2px solid white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      pointer-events: none;
+    }
+
+    @media (hover: none) and (pointer: coarse) {
+      #joystick-zone {
+        display: flex;
+      }
+    }
   </style>
 </head>
 
@@ -46,66 +83,147 @@
     Cargando EduVR Classroom...
   </div>
 
+  <!-- JOYSTICK PARA CAMINAR -->
+  <div id="joystick-zone">
+    <div id="joystick-knob"></div>
+  </div>
+
   <a-scene
     renderer="antialias: false; colorManagement: true"
     vr-mode-ui="enabled: true"
     loading-screen="enabled: false">
 
-    <!-- Cámara del alumno -->
-    <a-entity
-      position="0 1.6 6"
-      camera
-      look-controls
-      wasd-controls>
+    <!-- CUERPO DEL JUGADOR -->
+    <a-entity id="player-rig" position="0 0 6">
 
-      <!-- Cursor interactivo -->
-      <a-entity
-        id="cursor"
-        cursor="rayOrigin: mouse"
-        raycaster="objects: .clickable; far: 25">
-      </a-entity>
+      <!-- CAMARA UNICA -->
+      <a-camera
+        id="player-camera"
+        position="0 1.6 0"
+        look-controls="magicWindowTrackingEnabled: false; touchEnabled: true"
+        wasd-controls="acceleration: 30">
 
+        <!-- CURSOR PARA MIRADA VR -->
+        <a-entity
+          cursor="fuse: true; fuseTimeout: 1500"
+          position="0 0 -1"
+          geometry="primitive: ring; radiusInner: 0.015; radiusOuter: 0.025"
+          material="color: #00ffcc; shader: flat"
+          raycaster="objects: .clickable; far: 30">
+        </a-entity>
+
+      </a-camera>
     </a-entity>
 
-    <!-- Aquí se cargan las diferentes escenas -->
-    <!-- Escenarios -->
-<a-entity id="world"></a-entity>
+    <!-- ESCENARIOS -->
+    <a-entity id="world"></a-entity>
 
-<!-- Cámara -->
-<!-- CAMARA PRINCIPAL -->
-<a-camera
-  position="0 1.6 1.5"
-  look-controls="magicWindowTrackingEnabled: false; touchEnabled: true"
-  wasd-controls>
+    <!-- CURSOR PARA RATON -->
+    <a-entity
+      cursor="rayOrigin: mouse; fuse: false"
+      raycaster="objects: .clickable; far: 30">
+    </a-entity>
 
-  <!-- CURSOR PARA MIRADA VR -->
-  <a-entity
-    cursor="fuse: true; fuseTimeout: 1500"
-    position="0 0 -1"
-    geometry="primitive: ring; radiusInner: 0.015; radiusOuter: 0.025"
-    material="color: #00ffcc; shader: flat"
-    raycaster="objects: .clickable; far: 30">
-  </a-entity>
-
-</a-camera>
-
-<!-- CURSOR PARA RATON -->
-<a-entity
-  cursor="rayOrigin: mouse; fuse: false"
-  raycaster="objects: .clickable; far: 30">
-</a-entity>
   </a-scene>
 
-  <script type="module" src="./src/main.js"></script>
-
+  <!-- MOVIMIENTO DEL JOYSTICK -->
   <script>
-    document.querySelector("a-scene").addEventListener(
-      "loaded",
-      () => {
-        document.querySelector("#loading").style.display = "none";
+    const joystick = document.querySelector("#joystick-zone");
+    const knob = document.querySelector("#joystick-knob");
+    const rig = document.querySelector("#player-rig");
+    const camera = document.querySelector("#player-camera");
+
+    let joystickActive = false;
+    let joystickX = 0;
+    let joystickY = 0;
+    let previousTime = 0;
+
+    const maxDistance = 38;
+    const speed = 2.2;
+
+    joystick.addEventListener("pointerdown", (event) => {
+      joystickActive = true;
+      joystick.setPointerCapture(event.pointerId);
+      moveJoystick(event);
+    });
+
+    joystick.addEventListener("pointermove", (event) => {
+      if (joystickActive) {
+        moveJoystick(event);
       }
-    );
+    });
+
+    function moveJoystick(event) {
+      const rect = joystick.getBoundingClientRect();
+
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+
+      let x = event.clientX - centerX;
+      let y = event.clientY - centerY;
+
+      const distance = Math.hypot(x, y);
+
+      if (distance > maxDistance) {
+        x = (x / distance) * maxDistance;
+        y = (y / distance) * maxDistance;
+      }
+
+      joystickX = x / maxDistance;
+      joystickY = y / maxDistance;
+
+      knob.style.transform = `translate(${x}px, ${y}px)`;
+    }
+
+    function stopJoystick() {
+      joystickActive = false;
+      joystickX = 0;
+      joystickY = 0;
+      knob.style.transform = "translate(0px, 0px)";
+    }
+
+    joystick.addEventListener("pointerup", stopJoystick);
+    joystick.addEventListener("pointercancel", stopJoystick);
+    joystick.addEventListener("lostpointercapture", stopJoystick);
+
+    function updateMovement(time) {
+      if (!previousTime) previousTime = time;
+
+      const delta = Math.min((time - previousTime) / 1000, 0.05);
+      previousTime = time;
+
+      if (joystickActive) {
+        const yaw = camera.object3D.rotation.y;
+
+        const forward = -joystickY;
+
+        const moveX =
+          joystickX * Math.cos(yaw) -
+          forward * Math.sin(yaw);
+
+        const moveZ =
+          -joystickX * Math.sin(yaw) -
+          forward * Math.cos(yaw);
+
+        const position = rig.object3D.position;
+
+        position.x += moveX * speed * delta;
+        position.z += moveZ * speed * delta;
+      }
+
+      requestAnimationFrame(updateMovement);
+    }
+
+    requestAnimationFrame(updateMovement);
+
+    // Ocultar pantalla de carga
+    document.querySelector("a-scene").addEventListener("loaded", () => {
+      document.querySelector("#loading").style.display = "none";
+    });
   </script>
+
+  <!-- JAVASCRIPT DEL PROYECTO -->
+  <script type="module" src="./src/main.js"></script>
 
 </body>
 </html>
