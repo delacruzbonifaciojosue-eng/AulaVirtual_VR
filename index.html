@@ -100,7 +100,7 @@
       <a-camera
         id="player-camera"
         position="0 1.6 0"
-        look-controls="magicWindowTrackingEnabled: false; touchEnabled: true"
+        look-controls="magicWindowTrackingEnabled: false; touchEnabled: false"
         wasd-controls="acceleration: 30">
 
         <!-- CURSOR PARA MIRADA VR -->
@@ -140,6 +140,87 @@
 
     const maxDistance = 38;
     const speed = 2.2;
+
+    // ======================================
+// CONTROL DE CAMARA CON SEGUNDO DEDO
+// ======================================
+
+let lookPointer = null;
+let previousLookX = 0;
+let previousLookY = 0;
+
+const lookSensitivity = 0.003;
+
+const scene = document.querySelector("a-scene");
+
+scene.addEventListener("loaded", () => {
+
+  const canvas = scene.canvas;
+
+  canvas.style.touchAction = "none";
+
+  canvas.addEventListener("pointerdown", (event) => {
+
+    // Solo utilizar dedos, no el raton
+    if (event.pointerType !== "touch") return;
+
+    // No interferir con el joystick
+    if (event.target.closest("#joystick-zone")) return;
+
+    if (lookPointer !== null) return;
+
+    lookPointer = event.pointerId;
+
+    previousLookX = event.clientX;
+    previousLookY = event.clientY;
+
+  });
+
+  canvas.addEventListener("pointermove", (event) => {
+
+    if (event.pointerId !== lookPointer) return;
+
+    const deltaX = event.clientX - previousLookX;
+    const deltaY = event.clientY - previousLookY;
+
+    previousLookX = event.clientX;
+    previousLookY = event.clientY;
+
+    const controls = camera.components["look-controls"];
+
+if (!controls) return;
+
+const yaw = controls.yawObject;
+const pitch = controls.pitchObject;
+
+// Movimiento horizontal
+yaw.rotation.y -= deltaX * lookSensitivity;
+
+// Movimiento vertical
+pitch.rotation.x -= deltaY * lookSensitivity;
+
+// Limitar inclinación para evitar giros completos
+const limit = Math.PI / 2 - 0.05;
+
+pitch.rotation.x = Math.max(
+  -limit,
+  Math.min(limit, pitch.rotation.x)
+);
+
+  });
+
+  function releaseLook(event) {
+
+    if (event.pointerId === lookPointer) {
+      lookPointer = null;
+    }
+
+  }
+
+  canvas.addEventListener("pointerup", releaseLook);
+  canvas.addEventListener("pointercancel", releaseLook);
+
+});
 
     joystick.addEventListener("pointerdown", (event) => {
       joystickActive = true;
