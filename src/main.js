@@ -7,96 +7,323 @@ const scene = document.querySelector("a-scene");
 const world = document.querySelector("#world");
 
 // ==========================================
-// CONTENIDO HISTORICO DE LOS PERSONAJES
+// REGISTRO DE APRENDIZAJE DE LA SESION 1
+// ==========================================
+
+const learningRecord = {
+  session: 1,
+  topic: "La sociedad del Antiguo Regimen",
+  answers: [],
+  completedCharacters: []
+};
+
+// ==========================================
+// CONTENIDO HISTORICO
+// SESION 1: EL ANTIGUO REGIMEN
 // ==========================================
 
 const dialogues = {
 
   noble: {
     name: "REPRESENTANTE DE LA NOBLEZA",
-    introduction:
-      "Nuestra familia posee tierras y privilegios heredados. Durante generaciones hemos tenido una posicion privilegiada dentro de la sociedad francesa. La crisis economica amenaza nuestros beneficios.",
 
-    question:
-      "Ante las demandas de igualdad, ¿que postura deberiamos adoptar?",
+    steps: [
 
-    answers: [
       {
-        text: "A. Conservar nuestros privilegios.",
-        feedback:
-          "Esta postura representa a los sectores privilegiados que buscaban mantener el orden tradicional y sus beneficios."
+        type: "info",
+        title: "UNA SOCIEDAD HEREDADA",
+        text:
+          "Mi familia pertenece a la nobleza desde hace generaciones. Nuestra posicion social se transmite por nacimiento. Poseemos tierras, recibimos rentas y ocupamos posiciones importantes dentro de la sociedad francesa. Este sistema existe desde hace mucho tiempo."
       },
+
       {
-        text: "B. Aceptar la igualdad juridica.",
-        feedback:
-          "Esta postura supone renunciar a privilegios legales heredados y aceptar una transformacion del sistema social."
+        type: "document",
+        title: "LOS PRIVILEGIOS DE LA NOBLEZA",
+        document:
+          "Durante el Antiguo Regimen, la nobleza disfrutaba de privilegios juridicos, sociales y fiscales. Algunos nobles estaban exentos de ciertos impuestos directos y tenian acceso preferente a cargos y honores.",
+        context:
+          "Sin embargo, no todos los nobles eran igualmente ricos. Existian grandes diferencias economicas dentro del propio estamento."
       },
+
       {
-        text: "C. Compartir el poder politico.",
-        feedback:
-          "Esta propuesta implica abrir la participacion politica a otros sectores de la sociedad."
+        type: "question",
+        prompt:
+          "Un campesino trabaja una tierra y debe pagar rentas y obligaciones a su señor. ¿Que diferencia observas entre su situacion y la de una familia noble?",
+
+        answers: [
+
+          {
+            text: "A. Ambos tienen las mismas obligaciones.",
+            feedback:
+              "No necesariamente. El sistema feudal y los privilegios del Antiguo Regimen establecian obligaciones y derechos diferentes segun la posicion social."
+          },
+
+          {
+            text: "B. La posicion de nacimiento influye en sus derechos y obligaciones.",
+            feedback:
+              "Tu observacion es importante. El nacimiento condicionaba la posicion juridica y social. Un campesino y un noble no disfrutaban de las mismas condiciones."
+          },
+
+          {
+            text: "C. El campesino siempre tiene mas privilegios.",
+            feedback:
+              "La evidencia historica muestra lo contrario: los sectores privilegiados disfrutaban de ventajas que no estaban disponibles para la mayoria de la poblacion."
+          }
+        ]
+      },
+
+      {
+        type: "info",
+        title: "UNA DEFENSA DEL ORDEN TRADICIONAL",
+        text:
+          "Considero que la sociedad debe conservar sus tradiciones. La nobleza ha cumplido funciones militares, administrativas y politicas. Si desaparecen nuestros privilegios, ¿que garantizara la estabilidad del reino?"
+      },
+
+      {
+        type: "question",
+        prompt:
+          "¿Que argumento utiliza el noble para justificar la conservacion de sus privilegios?",
+
+        answers: [
+
+          {
+            text: "A. Que todos deben tener exactamente la misma riqueza.",
+            feedback:
+              "El personaje no defiende la igualdad economica. Su argumento se apoya en la tradicion y en las funciones que historicamente ha tenido la nobleza."
+          },
+
+          {
+            text: "B. Que la tradicion y el orden social justifican su posicion.",
+            feedback:
+              "Exactamente. La nobleza podia justificar su posicion apelando a la tradicion, el nacimiento y las funciones que desempeñaba dentro del reino."
+          },
+
+          {
+            text: "C. Que la sociedad debe eliminar todos los estamentos.",
+            feedback:
+              "Esta propuesta cuestionaria el sistema del que el personaje obtiene sus privilegios. No representa su postura."
+          }
+        ]
+      },
+
+      {
+        type: "conclusion",
+        title: "PRIMER TESTIMONIO COMPLETADO",
+        text:
+          "Has conocido la perspectiva de un integrante de la nobleza. Recuerda sus argumentos: nacimiento, tradicion, privilegios y estabilidad social. Comparalos con los testimonios de los otros sectores."
       }
+
     ]
   },
 
   bourgeois: {
     name: "REPRESENTANTE DE LA BURGUESIA",
-    introduction:
-      "Tenemos negocios, propiedades y educacion. Contribuimos a la economia francesa, pero nuestro poder politico no corresponde a nuestra importancia economica. Consideramos injusto que el nacimiento determine los privilegios.",
 
-    question:
-      "¿Que cambio consideras que deberia realizarse?",
+    steps: [
 
-    answers: [
       {
-        text: "A. Mantener los privilegios de nacimiento.",
-        feedback:
-          "Esta opcion conserva las desigualdades juridicas del Antiguo Regimen y no responde a las demandas de igualdad de la burguesia."
+        type: "info",
+        title: "RIQUEZA SIN IGUALDAD POLITICA",
+        text:
+          "Soy comerciante y propietario. Mi actividad economica me ha permitido adquirir riqueza y educacion. Sin embargo, mi origen familiar no pertenece a la nobleza. Aunque contribuimos a la economia, nuestra posicion social no nos permite disfrutar de todos sus privilegios."
       },
+
       {
-        text: "B. Establecer igualdad ante la ley.",
-        feedback:
-          "Correcto. La igualdad juridica fue una de las principales demandas revolucionarias. La burguesia buscaba terminar con los privilegios legales heredados."
+        type: "document",
+        title: "UNA SOCIEDAD DE ESTAMENTOS",
+        document:
+          "La sociedad francesa del Antiguo Regimen se organizaba en tres estamentos: clero, nobleza y tercer estado. La burguesia formaba parte del tercer estado, aunque algunos de sus integrantes tenian una considerable riqueza.",
+        context:
+          "La riqueza economica no significaba automaticamente pertenecer a la nobleza ni disfrutar de sus privilegios juridicos."
       },
+
       {
-        text: "C. Permitir que solo la nobleza gobierne.",
-        feedback:
-          "Esta propuesta mantiene el sistema politico privilegiado que la burguesia cuestionaba."
+        type: "question",
+        prompt:
+          "Un comerciante posee mas dinero que un noble empobrecido. ¿Que podemos deducir de esta situacion?",
+
+        answers: [
+
+          {
+            text: "A. La riqueza y el privilegio de nacimiento son cosas diferentes.",
+            feedback:
+              "Correcto. La riqueza economica y la posicion juridica no eran equivalentes. El nacimiento podia determinar privilegios que el dinero por si solo no otorgaba."
+          },
+
+          {
+            text: "B. Todo comerciante rico se convierte automaticamente en noble.",
+            feedback:
+              "No. La riqueza no convertia automaticamente a una persona en noble. Existian distintas formas de adquirir titulos, pero no era una consecuencia directa de tener dinero."
+          },
+
+          {
+            text: "C. Todos los integrantes del tercer estado eran pobres.",
+            feedback:
+              "Esta afirmacion es incorrecta. El tercer estado era muy diverso e incluia campesinos, trabajadores urbanos y burgueses con importantes recursos economicos."
+          }
+        ]
+      },
+
+      {
+        type: "info",
+        title: "EL PROBLEMA DE LA REPRESENTACION",
+        text:
+          "No cuestiono solamente las diferencias economicas. Tambien me pregunto por que los privilegios de nacimiento deben determinar quien puede acceder a los cargos y participar en las decisiones del reino. Considero que la contribucion y la capacidad deberian tener mayor importancia."
+      },
+
+      {
+        type: "question",
+        prompt:
+          "¿Que contradiccion identifica el comerciante dentro del sistema social?",
+
+        answers: [
+
+          {
+            text: "A. Tener riqueza no garantiza tener los mismos derechos y privilegios.",
+            feedback:
+              "Esa es una contradiccion importante. La posicion economica de algunos burgueses no se correspondia con su reconocimiento politico y juridico."
+          },
+
+          {
+            text: "B. Todos los comerciantes controlaban el gobierno.",
+            feedback:
+              "No. La burguesia tenia influencia economica, pero no controlaba de manera general el poder politico del reino."
+          },
+
+          {
+            text: "C. La nobleza no tenia ninguna ventaja social.",
+            feedback:
+              "La nobleza conservaba importantes privilegios. Precisamente esas diferencias eran cuestionadas por sectores de la burguesia."
+          }
+        ]
+      },
+
+      {
+        type: "conclusion",
+        title: "SEGUNDO TESTIMONIO COMPLETADO",
+        text:
+          "Has identificado una diferencia entre riqueza, nacimiento y poder politico. Conserva esta idea: una persona podia tener recursos economicos sin disfrutar de los mismos privilegios que otra por su origen familiar."
       }
+
     ]
   },
 
   "third-estate": {
     name: "REPRESENTANTE DE LOS SECTORES POPULARES",
-    introduction:
-      "Somos campesinos, artesanos y trabajadores urbanos. Muchos enfrentamos dificultades para conseguir alimentos y debemos soportar numerosas cargas fiscales. La crisis economica hace cada vez mas dificil nuestra vida cotidiana.",
 
-    question:
-      "¿Cual consideras que es nuestra principal exigencia?",
+    steps: [
 
-    answers: [
       {
-        text: "A. Aumentar los impuestos al pueblo.",
-        feedback:
-          "Esta medida agravaria las dificultades economicas de los sectores populares."
+        type: "info",
+        title: "LA MAYORIA DE LA POBLACION",
+        text:
+          "Soy parte del tercer estado. En el se encuentran campesinos, artesanos, trabajadores urbanos y burgueses. Nuestras vidas son muy distintas, pero compartimos una posicion juridica que nos diferencia de los estamentos privilegiados."
       },
+
       {
-        text: "B. Reducir las cargas injustas y mejorar las condiciones de vida.",
-        feedback:
-          "Correcto. Las dificultades economicas, los impuestos y el precio del pan alimentaron el descontento popular."
+        type: "document",
+        title: "OBLIGACIONES Y CARGAS",
+        document:
+          "Gran parte de la poblacion campesina debia pagar impuestos a la monarquia y, segun la region y las condiciones locales, rentas u otras obligaciones señoriales. El clero y la nobleza disfrutaban de diferentes privilegios fiscales.",
+        context:
+          "Las obligaciones no eran identicas para todas las personas. La situacion variaba segun la region, la actividad y la condicion social."
       },
+
       {
-        text: "C. Conservar los privilegios fiscales.",
-        feedback:
-          "Esta opcion mantiene una de las desigualdades que provocaban el descontento social."
+        type: "question",
+        prompt:
+          "¿Que consecuencia podia tener una distribucion desigual de las cargas fiscales?",
+
+        answers: [
+
+          {
+            text: "A. Todos los sectores tendrian las mismas condiciones.",
+            feedback:
+              "No. Una distribucion desigual de las cargas fiscales podia aumentar las diferencias y provocar descontento entre quienes soportaban mayores obligaciones."
+          },
+
+          {
+            text: "B. Los sectores con mayores obligaciones podian sentirse perjudicados.",
+            feedback:
+              "Correcto. Cuando las cargas recaian de forma desigual sobre la poblacion, aumentaba la percepcion de injusticia y el descontento social."
+          },
+
+          {
+            text: "C. Desaparecerian automaticamente los privilegios.",
+            feedback:
+              "El descontento no eliminaba por si mismo los privilegios. Para transformar el sistema se necesitaban cambios politicos y sociales."
+          }
+        ]
+      },
+
+      {
+        type: "info",
+        title: "EL PRECIO DEL PAN",
+        text:
+          "Cuando las cosechas son malas, conseguir alimentos se vuelve mas dificil. Si el precio del pan aumenta, una familia que destina gran parte de sus ingresos a alimentarse puede quedar en una situacion desesperada. No todos tenemos ahorros o propiedades para resistir una crisis."
+      },
+
+      {
+        type: "question",
+        prompt:
+          "¿Por que el aumento del precio del pan podia convertirse en un problema politico?",
+
+        answers: [
+
+          {
+            text: "A. Porque afectaba la vida cotidiana y aumentaba el descontento.",
+            feedback:
+              "Correcto. La escasez y el encarecimiento del pan afectaban directamente la subsistencia de muchas familias y podian alimentar protestas y conflictos."
+          },
+
+          {
+            text: "B. Porque solamente afectaba a los nobles.",
+            feedback:
+              "No. Los sectores populares eran especialmente vulnerables a las variaciones del precio de los alimentos, debido a sus limitados recursos."
+          },
+
+          {
+            text: "C. Porque el precio de los alimentos no tenia relacion con la sociedad.",
+            feedback:
+              "Los alimentos eran fundamentales para la vida cotidiana. Su precio podia influir en la estabilidad social y en la legitimidad de las autoridades."
+          }
+        ]
+      },
+
+      {
+        type: "conclusion",
+        title: "TERCER TESTIMONIO COMPLETADO",
+        text:
+          "Has conocido algunas dificultades de los sectores populares. Recuerda que el tercer estado no era un grupo homogeneo: sus integrantes compartian ciertas condiciones juridicas, pero tenian recursos, intereses y necesidades diferentes."
       }
+
     ]
   }
 
 };
 
 // ==========================================
-// SISTEMA DE NAVEGACION
+// ESTADO DEL DIALOGO ACTUAL
+// ==========================================
+
+let currentDialogue = null;
+let lastInteraction = 0;
+
+// ==========================================
+// UTILIDAD PARA TEXTO EN A-FRAME
+// ==========================================
+
+function safeText(value) {
+
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+// ==========================================
+// NAVEGACION
 // ==========================================
 
 function navigate(destination) {
@@ -135,7 +362,7 @@ function navigate(destination) {
 }
 
 // ==========================================
-// CREAR PANEL DE DIALOGO 3D
+// ABRIR CONVERSACION
 // ==========================================
 
 function showDialogue(characterId) {
@@ -146,207 +373,392 @@ function showDialogue(characterId) {
 
   closeDialogue();
 
+  currentDialogue = {
+    characterId,
+    stepIndex: 0,
+    mode: "content",
+    selectedAnswer: null
+  };
+
   const panel = document.createElement("a-entity");
 
   panel.id = "dialogue-panel";
+  panel.setAttribute("position", "0 1.6 -2.5");
+  panel.setAttribute("data-character", characterId);
 
-panel.setAttribute("position", "0 1.6 -2.5");
+  world.appendChild(panel);
 
-panel.setAttribute("data-character", characterId);
+  renderDialogueStep();
+}
 
-  panel.innerHTML = `
+// ==========================================
+// ESTRUCTURA VISUAL DEL PANEL
+// ==========================================
 
-  <!-- Boton para cerrar -->
-<a-box
-  class="clickable"
-  data-dialog-close="true"
-  position="2.2 1.65 0.12"
-  width="0.4"
-  height="0.4"
-  depth="0.12"
-  color="#a94442">
-</a-box>
+function panelBase(title) {
 
-<a-text
-  value="X"
-  position="2.2 1.65 0.21"
-  align="center"
-  color="#ffffff"
-  width="2">
-</a-text>
+  return `
 
-    <!-- Fondo del panel -->
     <a-box
-      position="0 0.35 -0.05"
-      width="5"
-      height="3.6"
+      position="0 0.25 -0.05"
+      width="5.1"
+      height="3.8"
       depth="0.12"
       color="#182c40"
-      material="opacity: 0.97; transparent: true">
+      material="opacity: 0.98; transparent: true">
     </a-box>
 
-    <!-- Nombre -->
     <a-text
-      value="${character.name}"
-      position="-2.25 1.85 0.04"
-      width="5.2"
+      value="${safeText(title)}"
+      position="-2.25 1.75 0.04"
+      width="5"
       color="#f1c77a"
-      align="left">
+      align="left"
+      wrap-count="40">
     </a-text>
 
-    <!-- Presentacion -->
+    <a-box
+      class="clickable"
+      data-dialog-close="true"
+      position="2.25 1.72 0.13"
+      width="0.38"
+      height="0.38"
+      depth="0.12"
+      color="#a94442">
+    </a-box>
+
     <a-text
-      value="${character.introduction}"
-      position="-2.2 1.15 0.04"
-      width="4.4"
+      value="X"
+      position="2.25 1.72 0.22"
+      align="center"
       color="#ffffff"
-      wrap-count="65"
-      align="left">
-    </a-text>
-
-    <!-- Pregunta -->
-    <a-text
-      value="${character.question}"
-      position="-2.2 0.15 0.04"
-      width="4.4"
-      color="#f1c77a"
-      wrap-count="65"
-      align="left">
-    </a-text>
-
-    <!-- Respuesta A -->
-    <a-box
-      class="clickable"
-      data-dialog-choice="0"
-      position="0 -0.25 0.12"
-      width="4.5"
-      height="0.38"
-      depth="0.12"
-      color="#42617b">
-    </a-box>
-
-    <a-text
-      value="${character.answers[0].text}"
-      position="-2.1 -0.25 0.20"
-      width="4.3"
-      color="#ffffff">
-    </a-text>
-
-    <!-- Respuesta B -->
-    <a-box
-      class="clickable"
-      data-dialog-choice="1"
-      position="0 -0.70 0.12"
-      width="4.5"
-      height="0.38"
-      depth="0.12"
-      color="#42617b">
-    </a-box>
-
-    <a-text
-      value="${character.answers[1].text}"
-      position="-2.1 -0.70 0.20"
-      width="4.3"
-      color="#ffffff">
-    </a-text>
-
-    <!-- Respuesta C -->
-    <a-box
-      class="clickable"
-      data-dialog-choice="2"
-      position="0 -1.15 0.12"
-      width="4.5"
-      height="0.38"
-      depth="0.12"
-      color="#42617b">
-    </a-box>
-
-    <a-text
-      value="${character.answers[2].text}"
-      position="-2.1 -1.15 0.20"
-      width="4.3"
-      color="#ffffff">
+      width="2">
     </a-text>
 
   `;
+}
 
-  world.appendChild(panel);
+// ==========================================
+// BOTON CONTINUAR
+// ==========================================
+
+function continueButton(label = "CONTINUAR") {
+
+  return `
+
+    <a-box
+      class="clickable"
+      data-dialog-next="true"
+      position="0 -1.25 0.13"
+      width="2.6"
+      height="0.48"
+      depth="0.12"
+      color="#368b67">
+    </a-box>
+
+    <a-text
+      value="${safeText(label)}"
+      position="0 -1.25 0.22"
+      align="center"
+      color="#ffffff"
+      width="3">
+    </a-text>
+
+  `;
+}
+
+// ==========================================
+// MOSTRAR ETAPA DEL DIALOGO
+// ==========================================
+
+function renderDialogueStep() {
+
+  if (!currentDialogue) return;
+
+  const character = dialogues[currentDialogue.characterId];
+  const step = character.steps[currentDialogue.stepIndex];
+
+  const panel = document.querySelector("#dialogue-panel");
+
+  if (!panel || !step) return;
+
+  currentDialogue.mode = "content";
+  currentDialogue.selectedAnswer = null;
+
+  let content = "";
+
+  // ----------------------------------------
+  // INFORMACION HISTORICA
+  // ----------------------------------------
+
+  if (step.type === "info") {
+
+    content = `
+
+      <a-text
+        value="${safeText(step.text)}"
+        position="-2.2 0.9 0.04"
+        width="4.4"
+        color="#ffffff"
+        wrap-count="58"
+        align="left">
+      </a-text>
+
+      ${continueButton()}
+
+    `;
+  }
+
+  // ----------------------------------------
+  // DOCUMENTO HISTORICO
+  // ----------------------------------------
+
+  else if (step.type === "document") {
+
+    content = `
+
+      <a-box
+        position="0 0.25 0.04"
+        width="4.4"
+        height="1.2"
+        depth="0.05"
+        color="#d8c9a7">
+      </a-box>
+
+      <a-text
+        value="${safeText(step.document)}"
+        position="-2.05 0.65 0.08"
+        width="4.05"
+        color="#29251f"
+        wrap-count="55"
+        align="left">
+      </a-text>
+
+      <a-text
+        value="CONTEXTO HISTORICO"
+        position="-2.15 -0.55 0.05"
+        width="4.3"
+        color="#f1c77a">
+      </a-text>
+
+      <a-text
+        value="${safeText(step.context)}"
+        position="-2.15 -0.85 0.05"
+        width="4.3"
+        color="#ffffff"
+        wrap-count="58">
+      </a-text>
+
+      ${continueButton()}
+
+    `;
+  }
+
+  // ----------------------------------------
+  // PREGUNTA DE ANALISIS
+  // ----------------------------------------
+
+  else if (step.type === "question") {
+
+    content = `
+
+      <a-text
+        value="${safeText(step.prompt)}"
+        position="-2.15 1.05 0.04"
+        width="4.3"
+        color="#ffffff"
+        wrap-count="58">
+      </a-text>
+
+      ${step.answers.map((answer, index) => `
+
+        <a-box
+          class="clickable"
+          data-dialog-choice="${index}"
+          position="0 ${0.05 - index * 0.58} 0.13"
+          width="4.5"
+          height="0.48"
+          depth="0.12"
+          color="#42617b">
+        </a-box>
+
+        <a-text
+          value="${safeText(answer.text)}"
+          position="-2.12 ${0.05 - index * 0.58} 0.22"
+          width="4.15"
+          color="#ffffff"
+          wrap-count="48">
+        </a-text>
+
+      `).join("")}
+
+    `;
+  }
+
+  // ----------------------------------------
+  // CONCLUSION DEL PERSONAJE
+  // ----------------------------------------
+
+  else if (step.type === "conclusion") {
+
+    content = `
+
+      <a-text
+        value="${safeText(step.text)}"
+        position="-2.15 0.85 0.04"
+        width="4.3"
+        color="#ffffff"
+        wrap-count="58">
+      </a-text>
+
+      <a-text
+        value="Has terminado este testimonio."
+        position="-2.15 -0.45 0.04"
+        width="4.3"
+        color="#f1c77a">
+      </a-text>
+
+      ${continueButton(
+        currentDialogue.stepIndex === character.steps.length - 1
+          ? "FINALIZAR"
+          : "CONTINUAR"
+      )}
+
+    `;
+  }
+
+  panel.innerHTML =
+    panelBase(step.title) + content;
 }
 
 // ==========================================
 // MOSTRAR RETROALIMENTACION
 // ==========================================
 
-function showFeedback(characterId, choiceIndex) {
+function showFeedback(choiceIndex) {
 
-  const character = dialogues[characterId];
+  if (!currentDialogue) return;
 
-  const answer = character.answers[choiceIndex];
+  const character = dialogues[currentDialogue.characterId];
+  const step = character.steps[currentDialogue.stepIndex];
+
+  if (!step || step.type !== "question") return;
+
+  const answer = step.answers[choiceIndex];
+
+  if (!answer) return;
 
   const panel = document.querySelector("#dialogue-panel");
 
-  if (!panel || !answer) return;
+  if (!panel) return;
+
+  currentDialogue.mode = "feedback";
+  currentDialogue.selectedAnswer = choiceIndex;
+
+  // Registrar respuesta del alumno
+
+  learningRecord.answers.push({
+    character: currentDialogue.characterId,
+    question: step.prompt,
+    answer: answer.text,
+    feedback: answer.feedback
+  });
+
+  console.log("Respuesta registrada:", learningRecord.answers);
 
   panel.innerHTML = `
 
-    <a-box
-      position="0 0.35 -0.05"
-      width="5"
-      height="3.6"
-      depth="0.12"
-      color="#182c40">
-    </a-box>
-<a-box
-  class="clickable"
-  data-dialog-close="true"
-  position="2.2 1.65 0.12"
-  width="0.4"
-  height="0.4"
-  depth="0.12"
-  color="#a94442">
-</a-box>
+    ${panelBase("ANALISIS HISTORICO")}
 
-<a-text
-  value="X"
-  position="2.2 1.65 0.21"
-  align="center"
-  color="#ffffff"
-  width="2">
-</a-text>
     <a-text
-      value="ANALISIS HISTORICO"
-      position="-2.2 1.75 0.04"
-      width="5"
+      value="Tu respuesta:"
+      position="-2.15 1.15 0.04"
+      width="4.3"
       color="#f1c77a">
     </a-text>
 
     <a-text
-      value="${answer.feedback}"
-      position="-2.15 0.9 0.04"
+      value="${safeText(answer.text)}"
+      position="-2.15 0.75 0.04"
       width="4.3"
       color="#ffffff"
-      wrap-count="65">
+      wrap-count="55">
     </a-text>
-
-    <a-box
-      class="clickable"
-      data-dialog-close="true"
-      position="0 -0.85 0.12"
-      width="2.5"
-      height="0.55"
-      depth="0.12"
-      color="#368b67">
-    </a-box>
 
     <a-text
-      value="CONTINUAR"
-      position="0 -0.85 0.22"
-      align="center"
-      width="3"
-      color="#ffffff">
+      value="REFLEXION"
+      position="-2.15 0.15 0.04"
+      width="4.3"
+      color="#f1c77a">
     </a-text>
 
+    <a-text
+      value="${safeText(answer.feedback)}"
+      position="-2.15 -0.25 0.04"
+      width="4.3"
+      color="#ffffff"
+      wrap-count="58">
+    </a-text>
+
+    ${continueButton()}
+
   `;
+}
+
+// ==========================================
+// AVANZAR EN LA CONVERSACION
+// ==========================================
+
+function nextDialogueStep() {
+
+  if (!currentDialogue) return;
+
+  const character = dialogues[currentDialogue.characterId];
+
+  // Si estamos mostrando retroalimentacion,
+  // avanzar a la siguiente etapa.
+
+  if (currentDialogue.mode === "feedback") {
+
+    currentDialogue.stepIndex++;
+
+  }
+
+  // Si estamos en una etapa informativa
+  // o documental, avanzar normalmente.
+
+  else {
+
+    const currentStep =
+      character.steps[currentDialogue.stepIndex];
+
+    if (currentStep.type === "conclusion") {
+
+      learningRecord.completedCharacters.push(
+        currentDialogue.characterId
+      );
+
+      console.log(
+        "Personajes completados:",
+        learningRecord.completedCharacters
+      );
+
+      closeDialogue();
+      return;
+    }
+
+    currentDialogue.stepIndex++;
+  }
+
+  // Verificar si existen mas etapas
+
+  if (currentDialogue.stepIndex >= character.steps.length) {
+
+    closeDialogue();
+    return;
+  }
+
+  renderDialogueStep();
 }
 
 // ==========================================
@@ -360,13 +772,13 @@ function closeDialogue() {
   if (panel) {
     panel.remove();
   }
+
+  currentDialogue = null;
 }
 
 // ==========================================
 // DETECCION DE INTERACCIONES
 // ==========================================
-
-let lastInteraction = 0;
 
 world.addEventListener("click", (event) => {
 
@@ -375,7 +787,7 @@ world.addEventListener("click", (event) => {
   if (now - lastInteraction < 350) return;
 
   const target = event.target.closest(
-    "[data-go], [data-dialog-choice], [data-dialog-close]"
+    "[data-go], [data-dialog-choice], [data-dialog-close], [data-dialog-next]"
   );
 
   if (!target) return;
@@ -383,31 +795,35 @@ world.addEventListener("click", (event) => {
   lastInteraction = now;
 
   // Seleccionar respuesta
+
   if (target.hasAttribute("data-dialog-choice")) {
 
     const choice = Number(
       target.getAttribute("data-dialog-choice")
     );
 
-    const characterId = document
-      .querySelector("#dialogue-panel")
-      ?.getAttribute("data-character");
+    showFeedback(choice);
+    return;
+  }
 
-    if (characterId) {
-      showFeedback(characterId, choice);
-    }
+  // Avanzar dialogo
 
+  if (target.hasAttribute("data-dialog-next")) {
+
+    nextDialogueStep();
     return;
   }
 
   // Cerrar dialogo
+
   if (target.hasAttribute("data-dialog-close")) {
 
     closeDialogue();
     return;
   }
 
-  // Navegacion normal
+  // Navegacion entre escenarios
+
   const destination = target.getAttribute("data-go");
 
   if (destination) {
