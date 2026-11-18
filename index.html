@@ -13,7 +13,7 @@
   <meta name="description"
     content="Plataforma educativa de realidad virtual">
 
-  <!-- A-FRAME -->
+  <!-- A-Frame -->
   <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
 
   <style>
@@ -25,8 +25,11 @@
 
     #loading {
       position: fixed;
-      z-index: 30;
-      inset: 0;
+      z-index: 10;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       background: #172538;
       color: white;
       display: flex;
@@ -36,7 +39,7 @@
       pointer-events: none;
     }
 
-    /* JOYSTICK */
+    /* JOYSTICK MOVIL */
 
     #joystick-zone {
       display: none;
@@ -65,53 +68,29 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.3);
       pointer-events: none;
     }
-
-    /* ACTIVAR GIROSCOPIO */
-
     #gyro-button {
-      display: none;
-      position: fixed;
-      z-index: 25;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 13px 20px;
-      border: none;
-      border-radius: 10px;
-      background: #087f8c;
-      color: white;
-      font-size: 15px;
-      font-weight: bold;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.3);
-      touch-action: manipulation;
-    }
+  display: none;
+  position: fixed;
+  z-index: 25;
+  top: 20px;
+  right: 20px;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 10px;
+  background: #087f8c;
+  color: white;
+  font-weight: bold;
+}
 
-    #gyro-status {
-      display: none;
-      position: fixed;
-      z-index: 24;
-      top: 70px;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 7px 12px;
-      border-radius: 8px;
-      background: rgba(0,0,0,0.65);
-      color: white;
-      font-size: 12px;
-      pointer-events: none;
-    }
+@media (hover: none) and (pointer: coarse) {
+  #gyro-button {
+    display: block;
+  }
+}
 
     @media (hover: none) and (pointer: coarse) {
       #joystick-zone {
         display: flex;
-      }
-
-      #gyro-button {
-        display: block;
-      }
-
-      #gyro-status {
-        display: block;
       }
     }
   </style>
@@ -123,48 +102,58 @@
     Cargando EduVR Classroom...
   </div>
 
-  <!-- JOYSTICK -->
+  <!-- JOYSTICK PARA CAMINAR -->
   <div id="joystick-zone">
     <div id="joystick-knob"></div>
   </div>
 
-  <!-- BOTON PARA ACTIVAR GIROSCOPIO -->
-  <button id="gyro-button">
-    Activar giroscopio
-  </button>
-
-  <div id="gyro-status">
-    Giroscopio desactivado
-  </div>
+<button id="gyro-button" style="
+  display: none;
+  position: fixed;
+  z-index: 25;
+  top: 20px;
+  right: 20px;
+  padding: 12px;
+  background: #087f8c;
+  color: white;
+  border: none;
+  border-radius: 10px;
+">
+  Activar giroscopio
+</button>
 
   <a-scene
     renderer="antialias: false; colorManagement: true"
     vr-mode-ui="enabled: true"
     loading-screen="enabled: false">
+    <!-- ILUMINACIÓN GLOBAL DE EDUVR -->
+<a-entity light="
+  type: ambient;
+  color: #ffffff;
+  intensity: 1.2">
+</a-entity>
 
-    <!-- ILUMINACION GLOBAL -->
-    <a-entity
-      light="type: ambient; color: #ffffff; intensity: 1.2">
-    </a-entity>
+<a-entity
+  position="-3 6 4"
+  light="
+    type: directional;
+    color: #ffffff;
+    intensity: 0.8">
+</a-entity>
 
-    <a-entity
-      position="-3 6 4"
-      light="type: directional; color: #ffffff; intensity: 0.8">
-    </a-entity>
-
-    <!-- JUGADOR -->
+    <!-- CUERPO DEL JUGADOR -->
     <a-entity id="player-rig" position="0 0 6">
 
       <!-- CAMARA UNICA -->
       <a-camera
         id="player-camera"
         position="0 1.6 0"
-        look-controls="magicWindowTrackingEnabled: false; touchEnabled: false"
-        wasd-controls="enabled: false">
+        k-controls="magicWindowTrackingEnabled: false; touchEnabled: false"
+        wasd-controls="acceleration: 30">
 
-        <!-- CURSOR VR -->
+        <!-- CURSOR PARA MIRADA VR -->
         <a-entity
-          cursor="fuse: true; fuseTimeout: 1500"
+          cursor="fuse: true; fuseTlooimeout: 1500"
           position="0 0 -1"
           geometry="primitive: ring; radiusInner: 0.015; radiusOuter: 0.025"
           material="color: #00ffcc; shader: flat"
@@ -172,7 +161,6 @@
         </a-entity>
 
       </a-camera>
-
     </a-entity>
 
     <!-- ESCENARIOS -->
@@ -186,21 +174,12 @@
 
   </a-scene>
 
-  <!-- CONTROLES -->
+  <!-- MOVIMIENTO DEL JOYSTICK -->
   <script>
-
     const joystick = document.querySelector("#joystick-zone");
     const knob = document.querySelector("#joystick-knob");
     const rig = document.querySelector("#player-rig");
     const camera = document.querySelector("#player-camera");
-    const scene = document.querySelector("a-scene");
-
-    const gyroButton = document.querySelector("#gyro-button");
-    const gyroStatus = document.querySelector("#gyro-status");
-
-    // ======================================
-    // MOVIMIENTO DEL JUGADOR
-    // ======================================
 
     let joystickActive = false;
     let joystickX = 0;
@@ -211,314 +190,232 @@
     const speed = 2.2;
 
     // ======================================
-    // CONTROL TACTIL DE CAMARA
-    // ======================================
+// CONTROL DE CAMARA CON SEGUNDO DEDO
+// ======================================
 
-    let lookPointer = null;
-    let previousLookX = 0;
-    let previousLookY = 0;
+let lookPointer = null;
+let previousLookX = 0;
+let previousLookY = 0;
 
-    const lookSensitivity = 0.003;
+const lookSensitivity = 0.003;
 
-    // Movimiento manual independiente
-    let touchYaw = 0;
-    let touchPitch = 0;
+// ======================================
+// GIROSCOPIO ESTABILIZADO
+// ======================================
 
-    // ======================================
-    // GIROSCOPIO
-    // ======================================
+const gyroButton = document.querySelector("#gyro-button");
 
-    let gyroEnabled = false;
-    let gyroInitialized = false;
+if (!gyroButton) {
+  console.error("No se encontró el botón del giroscopio");
+}
+let gyroEnabled = false;
+let gyroInitialized = false;
 
-    let initialAlpha = null;
-    let initialBeta = null;
-    let initialGamma = null;
+let initialAlpha = 0;
+let initialBeta = 0;
 
-    let targetGyroYaw = 0;
-    let targetGyroPitch = 0;
+let gyroYaw = 0;
+let gyroPitch = 0;
 
-    let smoothGyroYaw = 0;
-    let smoothGyroPitch = 0;
+let smoothYaw = 0;
+let smoothPitch = 0;
 
-    // Intensidad del suavizado
-    const smoothing = 0.12;
+const gyroSmoothing = 0.12;
 
-    // Sensibilidad del giroscopio
-    const gyroSensitivity = 1;
+// Normalizar angulos
+function normalizeAngle(angle) {
+  while (angle > 180) angle -= 360;
+  while (angle < -180) angle += 360;
+  return angle;
+}
 
-    // Zona muerta para reducir vibraciones pequeñas
-    const deadZone = 0.008;
+// Leer sensor
+function handleGyroscope(event) {
 
-    let yawObject = null;
-    let pitchObject = null;
+  if (!gyroEnabled) return;
 
-    function updateGyroStatus(message) {
-      gyroStatus.textContent = message;
+  if (event.alpha === null || event.beta === null) {
+    return;
+  }
+
+  if (!gyroInitialized) {
+
+    initialAlpha = event.alpha;
+    initialBeta = event.beta;
+
+    gyroInitialized = true;
+
+    gyroButton.textContent = "Recalibrar giroscopio";
+
+    return;
+  }
+
+  const deltaAlpha = normalizeAngle(
+    event.alpha - initialAlpha
+  );
+
+  const deltaBeta = event.beta - initialBeta;
+
+  gyroYaw = -deltaAlpha * Math.PI / 180;
+  gyroPitch = deltaBeta * Math.PI / 180;
+}
+
+// Activar sensor
+// ACTIVAR SENSOR
+async function activateGyroscope() {
+
+  try {
+
+    if (typeof DeviceOrientationEvent === "undefined") {
+      alert("Este dispositivo no tiene sensor compatible");
+      return;
     }
 
-    function normalizeAngle(angle) {
-      while (angle > 180) angle -= 360;
-      while (angle < -180) angle += 360;
-      return angle;
-    }
+    if (
+      typeof DeviceOrientationEvent.requestPermission === "function"
+    ) {
 
-    function applyDeadZone(value) {
-      if (Math.abs(value) < deadZone) {
-        return 0;
-      }
+      const permission =
+        await DeviceOrientationEvent.requestPermission();
 
-      return value;
-    }
-
-    // ======================================
-    // LECTURA DEL SENSOR
-    // ======================================
-
-    function handleDeviceOrientation(event) {
-
-      if (!gyroEnabled) return;
-
-      if (
-        event.alpha === null ||
-        event.beta === null ||
-        event.gamma === null
-      ) {
+      if (permission !== "granted") {
+        alert("No se concedio permiso al giroscopio");
         return;
       }
 
-      const alpha = event.alpha;
-      const beta = event.beta;
-      const gamma = event.gamma;
-
-      // Calibracion inicial
-      if (!gyroInitialized) {
-
-        initialAlpha = alpha;
-        initialBeta = beta;
-        initialGamma = gamma;
-
-        gyroInitialized = true;
-
-        updateGyroStatus("Giroscopio activo");
-
-        return;
-      }
-
-      // Diferencias respecto a la posicion inicial
-      const deltaAlpha = normalizeAngle(
-        alpha - initialAlpha
-      );
-
-      const deltaBeta = beta - initialBeta;
-      const deltaGamma = gamma - initialGamma;
-
-      // Orientacion de pantalla
-      const screenAngle =
-        screen.orientation?.angle ??
-        window.orientation ??
-        0;
-
-      let pitchDifference = deltaBeta;
-
-      // Ajuste aproximado para pantalla horizontal
-      if (Math.abs(screenAngle) === 90) {
-
-        pitchDifference =
-          screenAngle === 90
-            ? deltaGamma
-            : -deltaGamma;
-
-      }
-
-      // Convertir grados a radianes
-      targetGyroYaw =
-        -deltaAlpha *
-        Math.PI / 180 *
-        gyroSensitivity;
-
-      targetGyroPitch =
-        pitchDifference *
-        Math.PI / 180 *
-        gyroSensitivity;
-
-      targetGyroYaw = applyDeadZone(targetGyroYaw);
-      targetGyroPitch = applyDeadZone(targetGyroPitch);
-
     }
 
-    // ======================================
-    // ACTIVAR GIROSCOPIO
-    // ======================================
+    gyroCalibrated = false;
 
-    async function activateGyroscope() {
+    gyroTargetYaw = 0;
+    gyroTargetPitch = 0;
 
-      try {
+    gyroSmoothYaw = 0;
+    gyroSmoothPitch = 0;
 
-        // Algunos dispositivos requieren permiso
-        if (
-          typeof DeviceOrientationEvent !== "undefined" &&
-          typeof DeviceOrientationEvent.requestPermission === "function"
-        ) {
+    gyroEnabled = true;
 
-          const permission =
-            await DeviceOrientationEvent.requestPermission();
-
-          if (permission !== "granted") {
-            updateGyroStatus("Permiso del sensor denegado");
-            return;
-          }
-
-        }
-
-        if (typeof DeviceOrientationEvent === "undefined") {
-          updateGyroStatus("Sensor no compatible");
-          return;
-        }
-
-        gyroInitialized = false;
-
-        targetGyroYaw = 0;
-        targetGyroPitch = 0;
-
-        smoothGyroYaw = 0;
-        smoothGyroPitch = 0;
-
-        window.addEventListener(
-          "deviceorientation",
-          handleDeviceOrientation,
-          true
-        );
-
-        gyroEnabled = true;
-
-        gyroButton.textContent = "Recalibrar vista";
-
-        updateGyroStatus(
-          "Manten el telefono quieto para calibrar"
-        );
-
-      } catch (error) {
-
-        console.error("Error al activar giroscopio:", error);
-
-        updateGyroStatus(
-          "No se pudo activar el giroscopio"
-        );
-
-      }
-
-    }
-
-    gyroButton.addEventListener(
-      "click",
-      activateGyroscope
+    window.addEventListener(
+      "deviceorientation",
+      readGyroscope,
+      true
     );
 
-    // ======================================
-    // CONFIGURAR CAMARA
-    // ======================================
+    gyroButton.textContent = "Giroscopio activado";
 
-    scene.addEventListener("loaded", () => {
+    console.log("Giroscopio activado correctamente");
 
-      const controls = camera.components["look-controls"];
+  } catch (error) {
 
-      if (!controls) {
-        console.error("No se encontro look-controls");
-        return;
-      }
+    console.error("Error al activar giroscopio:", error);
 
-      yawObject = controls.yawObject;
-      pitchObject = controls.pitchObject;
+    alert("No se pudo activar el giroscopio");
 
-      // Lienzo de A-Frame
-      const canvas = scene.canvas;
+  }
 
-      canvas.style.touchAction = "none";
+}
 
-      // ======================================
-      // MOVIMIENTO DE VISTA CON DEDO
-      // ======================================
+if (gyroButton) {
+  gyroButton.addEventListener("click", activateGyroscope);
+}
+const gyroButton = document.querySelector("#gyro-button");
 
-      canvas.addEventListener("pointerdown", (event) => {
+gyroButton.addEventListener("click", async () => {
 
-        if (event.pointerType !== "touch") return;
+  await activateGyroscope();
 
-        if (event.target.closest("#joystick-zone")) return;
+  gyroButton.textContent = "Giroscopio activado";
 
-        if (event.target.closest("#gyro-button")) return;
+});
 
-        if (lookPointer !== null) return;
+gyroButton.addEventListener("click", activateGyroscope);
 
-        lookPointer = event.pointerId;
+const scene = document.querySelector("a-scene");
 
-        previousLookX = event.clientX;
-        previousLookY = event.clientY;
+scene.addEventListener("loaded", () => {
 
-      });
+  const canvas = scene.canvas;
 
-      canvas.addEventListener("pointermove", (event) => {
+  canvas.style.touchAction = "none";
 
-        if (event.pointerId !== lookPointer) return;
+  canvas.addEventListener("pointerdown", (event) => {
 
-        const deltaX =
-          event.clientX - previousLookX;
+    // Solo utilizar dedos, no el raton
+    if (event.pointerType !== "touch") return;
 
-        const deltaY =
-          event.clientY - previousLookY;
+    // No interferir con el joystick
+    if (event.target.closest("#joystick-zone")) return;
 
-        previousLookX = event.clientX;
-        previousLookY = event.clientY;
+    if (lookPointer !== null) return;
 
-        touchYaw -= deltaX * lookSensitivity;
-        touchPitch -= deltaY * lookSensitivity;
+    lookPointer = event.pointerId;
 
-        const limit = Math.PI / 2 - 0.05;
+    previousLookX = event.clientX;
+    previousLookY = event.clientY;
 
-        touchPitch = Math.max(
-          -limit,
-          Math.min(limit, touchPitch)
-        );
+  });
 
-      });
+  canvas.addEventListener("pointermove", (event) => {
 
-      function releaseLook(event) {
+    if (event.pointerId !== lookPointer) return;
 
-        if (event.pointerId === lookPointer) {
-          lookPointer = null;
-        }
+    const deltaX = event.clientX - previousLookX;
+    const deltaY = event.clientY - previousLookY;
 
-      }
+    previousLookX = event.clientX;
+    previousLookY = event.clientY;
 
-      canvas.addEventListener("pointerup", releaseLook);
-      canvas.addEventListener("pointercancel", releaseLook);
+    const controls = camera.components["look-controls"];
 
-    });
+if (!controls) return;
 
-    // ======================================
-    // JOYSTICK
-    // ======================================
+const yaw = controls.yawObject;
+const pitch = controls.pitchObject;
+
+// Movimiento horizontal
+yaw.rotation.y -= deltaX * lookSensitivity;
+
+// Movimiento vertical
+pitch.rotation.x -= deltaY * lookSensitivity;
+
+// Limitar inclinación para evitar giros completos
+const limit = Math.PI / 2 - 0.05;
+
+pitch.rotation.x = Math.max(
+  -limit,
+  Math.min(limit, pitch.rotation.x)
+);
+
+  });
+
+  function releaseLook(event) {
+
+    if (event.pointerId === lookPointer) {
+      lookPointer = null;
+    }
+
+  }
+
+  canvas.addEventListener("pointerup", releaseLook);
+  canvas.addEventListener("pointercancel", releaseLook);
+
+});
 
     joystick.addEventListener("pointerdown", (event) => {
-
       joystickActive = true;
-
       joystick.setPointerCapture(event.pointerId);
-
       moveJoystick(event);
-
     });
 
     joystick.addEventListener("pointermove", (event) => {
-
       if (joystickActive) {
         moveJoystick(event);
       }
-
     });
-
+<button id="gyro-button">
+  Activar giroscopio
+</button>
     function moveJoystick(event) {
-
       const rect = joystick.getBoundingClientRect();
 
       const centerX = rect.left + rect.width / 2;
@@ -530,81 +427,35 @@
       const distance = Math.hypot(x, y);
 
       if (distance > maxDistance) {
-
         x = (x / distance) * maxDistance;
         y = (y / distance) * maxDistance;
-
       }
 
       joystickX = x / maxDistance;
       joystickY = y / maxDistance;
 
-      knob.style.transform =
-        `translate(${x}px, ${y}px)`;
-
+      knob.style.transform = `translate(${x}px, ${y}px)`;
     }
 
     function stopJoystick() {
-
       joystickActive = false;
-
       joystickX = 0;
       joystickY = 0;
-
       knob.style.transform = "translate(0px, 0px)";
-
     }
 
     joystick.addEventListener("pointerup", stopJoystick);
     joystick.addEventListener("pointercancel", stopJoystick);
     joystick.addEventListener("lostpointercapture", stopJoystick);
 
-    // ======================================
-    // ACTUALIZACION GENERAL
-    // ======================================
-
     function updateMovement(time) {
+      if (!previousTime) previousTime = time;
 
-      if (!previousTime) {
-        previousTime = time;
-      }
-
-      const delta = Math.min(
-        (time - previousTime) / 1000,
-        0.05
-      );
-
+      const delta = Math.min((time - previousTime) / 1000, 0.05);
       previousTime = time;
 
-      // Suavizado del giroscopio
-      smoothGyroYaw +=
-        (targetGyroYaw - smoothGyroYaw) * smoothing;
-
-      smoothGyroPitch +=
-        (targetGyroPitch - smoothGyroPitch) * smoothing;
-
-      // Aplicar orientacion combinada
-      if (yawObject && pitchObject) {
-
-        yawObject.rotation.y =
-          smoothGyroYaw + touchYaw;
-
-        pitchObject.rotation.x =
-          smoothGyroPitch + touchPitch;
-
-        const limit = Math.PI / 2 - 0.05;
-
-        pitchObject.rotation.x = Math.max(
-          -limit,
-          Math.min(limit, pitchObject.rotation.x)
-        );
-
-      }
-
-      // Movimiento del jugador
-      if (joystickActive && yawObject) {
-
-        const yaw = yawObject.rotation.y;
+      if (joystickActive) {
+        const yaw = camera.object3D.rotation.y;
 
         const forward = -joystickY;
 
@@ -620,25 +471,17 @@
 
         position.x += moveX * speed * delta;
         position.z += moveZ * speed * delta;
-
       }
 
       requestAnimationFrame(updateMovement);
-
     }
 
     requestAnimationFrame(updateMovement);
 
-    // ======================================
-    // OCULTAR CARGA
-    // ======================================
-
-    scene.addEventListener("loaded", () => {
-
+    // Ocultar pantalla de carga
+    document.querySelector("a-scene").addEventListener("loaded", () => {
       document.querySelector("#loading").style.display = "none";
-
     });
-
   </script>
 
   <!-- JAVASCRIPT DEL PROYECTO -->
