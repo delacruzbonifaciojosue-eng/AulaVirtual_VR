@@ -1,15 +1,7 @@
 
 export function renderClassroom(world) {
   world.innerHTML = `
-    <!-- ILUMINACIÓN LIGERA -->
-    <a-light type="ambient"
-      color="#ffffff"
-      intensity="0.85"></a-light>
-
-    <a-light type="directional"
-      color="#ffffff"
-      intensity="0.45"
-      position="-3 6 4"></a-light>
+   
 
     <!-- CIELO -->
     <a-sky color="#b9d8e8"></a-sky>
