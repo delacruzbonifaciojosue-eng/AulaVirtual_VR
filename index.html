@@ -107,21 +107,7 @@
     <div id="joystick-knob"></div>
   </div>
 
-<button id="gyro-button" style="
-  display: none;
-  position: fixed;
-  z-index: 25;
-  top: 20px;
-  right: 20px;
-  padding: 12px;
-  background: #087f8c;
-  color: white;
-  border: none;
-  border-radius: 10px;
-">
-  Activar giroscopio
-</button>
-
+  
   <a-scene
     renderer="antialias: false; colorManagement: true"
     vr-mode-ui="enabled: true"
@@ -205,9 +191,6 @@ const lookSensitivity = 0.003;
 
 const gyroButton = document.querySelector("#gyro-button");
 
-if (!gyroButton) {
-  console.error("No se encontró el botón del giroscopio");
-}
 let gyroEnabled = false;
 let gyroInitialized = false;
 
@@ -261,15 +244,9 @@ function handleGyroscope(event) {
 }
 
 // Activar sensor
-// ACTIVAR SENSOR
 async function activateGyroscope() {
 
   try {
-
-    if (typeof DeviceOrientationEvent === "undefined") {
-      alert("Este dispositivo no tiene sensor compatible");
-      return;
-    }
 
     if (
       typeof DeviceOrientationEvent.requestPermission === "function"
@@ -285,48 +262,38 @@ async function activateGyroscope() {
 
     }
 
-    gyroCalibrated = false;
+    if (typeof DeviceOrientationEvent === "undefined") {
+      alert("Este dispositivo no tiene sensor compatible");
+      return;
+    }
 
-    gyroTargetYaw = 0;
-    gyroTargetPitch = 0;
+    gyroInitialized = false;
 
-    gyroSmoothYaw = 0;
-    gyroSmoothPitch = 0;
+    gyroYaw = 0;
+    gyroPitch = 0;
 
-    gyroEnabled = true;
+    smoothYaw = 0;
+    smoothPitch = 0;
 
     window.addEventListener(
       "deviceorientation",
-      readGyroscope,
+      handleGyroscope,
       true
     );
 
-    gyroButton.textContent = "Giroscopio activado";
+    gyroEnabled = true;
 
-    console.log("Giroscopio activado correctamente");
+    gyroButton.textContent = "Calibrando...";
 
   } catch (error) {
 
-    console.error("Error al activar giroscopio:", error);
+    console.error(error);
 
     alert("No se pudo activar el giroscopio");
 
   }
 
 }
-
-if (gyroButton) {
-  gyroButton.addEventListener("click", activateGyroscope);
-}
-const gyroButton = document.querySelector("#gyro-button");
-
-gyroButton.addEventListener("click", async () => {
-
-  await activateGyroscope();
-
-  gyroButton.textContent = "Giroscopio activado";
-
-});
 
 gyroButton.addEventListener("click", activateGyroscope);
 
