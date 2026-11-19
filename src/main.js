@@ -1,4 +1,3 @@
-
 import { renderClassroom } from "./scenes/classroom.js";
 import { renderMuseum } from "./scenes/museum.js";
 import { renderRevolution } from "./scenes/french-revolution.js";
@@ -309,6 +308,129 @@ const dialogues = {
 let currentDialogue = null;
 let lastInteraction = 0;
 
+
+// ==========================================
+// SISTEMA DE VOZ Y NARRACION
+// ==========================================
+
+let currentSpeechText = "";
+let currentUtterance = null;
+
+function stopSpeech() {
+
+  if ("speechSynthesis" in window) {
+    window.speechSynthesis.cancel();
+  }
+
+  currentUtterance = null;
+}
+
+function getSpanishVoice() {
+
+  if (!("speechSynthesis" in window)) return null;
+
+  const voices = window.speechSynthesis.getVoices();
+
+  return (
+    voices.find(voice => voice.lang.toLowerCase() === "es-mx") ||
+    voices.find(voice => voice.lang.toLowerCase().startsWith("es-mx")) ||
+    voices.find(voice => voice.lang.toLowerCase().startsWith("es-")) ||
+    voices.find(voice => voice.lang.toLowerCase() === "es") ||
+    null
+  );
+}
+
+function speakCurrentText() {
+
+  if (!currentSpeechText) return;
+
+  if (
+    !("speechSynthesis" in window) ||
+    typeof SpeechSynthesisUtterance === "undefined"
+  ) {
+    alert("Este navegador no tiene disponible la lectura por voz.");
+    return;
+  }
+
+  stopSpeech();
+
+  currentUtterance = new SpeechSynthesisUtterance(
+    currentSpeechText
+  );
+
+  currentUtterance.lang = "es-MX";
+  currentUtterance.rate = 0.95;
+  currentUtterance.pitch = 1;
+
+  const voice = getSpanishVoice();
+
+  if (voice) {
+    currentUtterance.voice = voice;
+    currentUtterance.lang = voice.lang;
+  }
+
+  window.speechSynthesis.speak(currentUtterance);
+}
+
+function toggleSpeech() {
+
+  if (!("speechSynthesis" in window)) {
+    alert("Este navegador no tiene disponible la lectura por voz.");
+    return;
+  }
+
+  const synthesis = window.speechSynthesis;
+
+  if (synthesis.speaking && !synthesis.paused) {
+    synthesis.pause();
+    return;
+  }
+
+  if (synthesis.paused) {
+    synthesis.resume();
+    return;
+  }
+
+  speakCurrentText();
+}
+
+function getStepSpeechText(step) {
+
+  if (!step) return "";
+
+  if (step.type === "info" || step.type === "conclusion") {
+    return step.text || "";
+  }
+
+  if (step.type === "document") {
+    return [
+      step.title,
+      "Documento histórico.",
+      step.document,
+      "Contexto histórico.",
+      step.context
+    ].filter(Boolean).join(". ");
+  }
+
+  if (step.type === "question") {
+    const options = (step.answers || [])
+      .map((answer, index) => {
+        const letter = ["A", "B", "C", "D", "E"][index] || String(index + 1);
+        return `Opción ${letter}. ${answer.text}`;
+      })
+      .join(". ");
+
+    return [
+      "Pregunta.",
+      step.prompt,
+      "Estas son las opciones.",
+      options
+    ].filter(Boolean).join(" ");
+  }
+
+  return "";
+}
+
 // ==========================================
 // UTILIDAD PARA TEXTO EN A-FRAME
 // ==========================================
@@ -411,10 +533,50 @@ function panelBase(title) {
     <a-text
       value="${safeText(title)}"
       position="-2.25 1.75 0.04"
-      width="5"
+      width="3.6"
       color="#f1c77a"
       align="left"
-      wrap-count="40">
+      wrap-count="32">
+    </a-text>
+
+    <a-box
+      class="clickable"
+      data-audio-action="toggle"
+      position="1.25 1.72 0.13"
+      width="0.42"
+      height="0.38"
+      depth="0.12"
+      color="#368b67">
+    </a-box>
+
+    <a-text
+      class="clickable"
+      data-audio-action="toggle"
+      value="▶"
+      position="1.25 1.72 0.22"
+      align="center"
+      color="#ffffff"
+      width="2">
+    </a-text>
+
+    <a-box
+      class="clickable"
+      data-audio-action="repeat"
+      position="1.75 1.72 0.13"
+      width="0.42"
+      height="0.38"
+      depth="0.12"
+      color="#42617b">
+    </a-box>
+
+    <a-text
+      class="clickable"
+      data-audio-action="repeat"
+      value="↻"
+      position="1.75 1.72 0.22"
+      align="center"
+      color="#ffffff"
+      width="2">
     </a-text>
 
     <a-box
@@ -484,6 +646,9 @@ function renderDialogueStep() {
 
   currentDialogue.mode = "content";
   currentDialogue.selectedAnswer = null;
+
+  stopSpeech();
+  currentSpeechText = getStepSpeechText(step);
 
   let content = "";
 
@@ -652,6 +817,14 @@ function showFeedback(choiceIndex) {
 
   if (!panel) return;
 
+  stopSpeech();
+  currentSpeechText = [
+    "Tu respuesta.",
+    answer.text,
+    "Retroalimentación.",
+    answer.feedback
+  ].join(" ");
+
   currentDialogue.mode = "feedback";
   currentDialogue.selectedAnswer = choiceIndex;
 
@@ -767,6 +940,9 @@ function nextDialogueStep() {
 
 function closeDialogue() {
 
+  stopSpeech();
+  currentSpeechText = "";
+
   const panel = document.querySelector("#dialogue-panel");
 
   if (panel) {
@@ -787,12 +963,29 @@ world.addEventListener("click", (event) => {
   if (now - lastInteraction < 350) return;
 
   const target = event.target.closest(
-    "[data-go], [data-dialog-choice], [data-dialog-close], [data-dialog-next]"
+    "[data-go], [data-dialog-choice], [data-dialog-close], [data-dialog-next], [data-audio-action]"
   );
 
   if (!target) return;
 
   lastInteraction = now;
+
+  // Controles de voz
+
+  if (target.hasAttribute("data-audio-action")) {
+
+    const action = target.getAttribute("data-audio-action");
+
+    if (action === "toggle") {
+      toggleSpeech();
+    }
+
+    if (action === "repeat") {
+      speakCurrentText();
+    }
+
+    return;
+  }
 
   // Seleccionar respuesta
 
